@@ -1,0 +1,7 @@
+#!ipxe
+set arch amd64
+kernel wimboot
+initrd ${arch}/media/Boot/BCD			BCD
+initrd ${arch}/media/Boot/boot.sdi		boot.sdi
+initrd ${arch}/media/sources/boot.wim	boot.wim
+boot
