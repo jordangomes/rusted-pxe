@@ -1,7 +1,52 @@
 #!ipxe
+set baseurl http://10.0.0.5
+
+:start
+console --picture ${baseurl}/background.png --x 1920 --y 1080 --left 200 --right 200 --top 48 --bottom 48
+
+menu Please choose an operating system
+item winpe          WinPE
+item win10_22h2     Windows 10 22H2
+item ubuntu         Ubuntu 21.10
+item exit   Exit iPXE and continue BIOS boot
+choose os && goto ${os}
+
+:winpe
 set arch amd64
 kernel wimboot
-initrd ${arch}/media/Boot/BCD			BCD
-initrd ${arch}/media/Boot/boot.sdi		boot.sdi
-initrd ${arch}/media/sources/boot.wim	boot.wim
-boot
+initrd winpe/${arch}/Boot/BCD			BCD
+initrd winpe/${arch}/Boot/boot.sdi		boot.sdi
+initrd winpe/${arch}/sources/boot.wim	boot.wim
+boot || goto failed
+goto start
+
+:win10_22h2
+set arch amd64
+kernel wimboot
+initrd winpe/installers/22h2/install.bat    install.bat
+initrd winpe/installers/22h2/winpeshl.ini   winpeshl.ini
+initrd winpe/${arch}/Boot/BCD			    BCD
+initrd winpe/${arch}/Boot/boot.sdi		    boot.sdi
+initrd winpe/${arch}/sources/boot.wim	    boot.wim
+boot || goto failed
+goto start
+
+:ubuntu
+kernel linux/ubuntu21.10/vmlinuz ip=dhcp url=${baseurl}/linux/ubuntu21.10/ubuntu-21.10-desktop-amd64.iso initrd=initrd
+initrd linux/ubuntu21.10/initrd
+boot || goto failed
+goto start
+
+:failed
+echo Booting failed, dropping to shell
+goto shell
+
+:shell
+echo Type 'exit' to get the back to the menu
+shell
+set menu-timeout 0
+set submenu-timeout 0
+goto start
+
+:exit
+exit

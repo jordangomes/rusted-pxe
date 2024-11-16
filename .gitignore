@@ -1,2 +1,3 @@
 /target
-/http_root/amd64
+/http_root/winpe
+/http_root/linux
